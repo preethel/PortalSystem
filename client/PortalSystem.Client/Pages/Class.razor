@@ -1,0 +1,96 @@
+﻿@page "/class"
+
+<main>
+    <div class="album py-5 bg-light">
+        <div class="container">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                @if (classes != null && classes.Count>0)
+                {
+                    @foreach (var c in classes)
+                    {
+                        <div class="col">
+                            <div class="card shadow-sm">
+                                <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c" /><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
+                                <div class="card-body">
+                                    <p class="card-title">@c.Title</p>
+                                    <p class="card-text">@c.Description</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
+                                            <AuthorizeView Roles="admin">
+                                                <Authorized>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary">Delete</button>
+                                                </Authorized>
+                                            </AuthorizeView>
+                                            <AuthorizeView Roles="user">
+                                                <Authorized>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="() => Enroll(c.Id)">Enroll</button>
+                                                </Authorized>
+                                            </AuthorizeView>
+
+                                        </div>
+                                        @*<small class="text-muted">9 mins</small>*@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p>No classes available.</p>
+                }
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="text-muted py-5">
+    <Pagination CurrentPage="7" TotalPage="9" PageClicked="HandlePageClicked" />
+    <div class="container">
+        <p class="float-end mb-1">
+            <a href="class">Back to top</a>
+        </p>
+    </div>
+</footer>
+
+@code {
+    private List<ClassModel> classes{ get; set; }
+    [Inject] HttpClient _http { get; set; }
+    [Inject] NavigationManager NavigationManager { get; set; }
+    [Inject] private AuthenticationStateProvider authenticationStateProvider { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetClasses(1, 10);
+    }
+    private async Task Enroll(Guid? classId)
+    {
+        if (classId.HasValue)
+        {
+            var body = new
+            {
+                ClassId = classId.Value // Extract the non-nullable value from the nullable Guid
+            };
+            var response = await _http.PostAsJsonAsync("https://testmongo.bdjobs.com/test_redwan/api/Class/enroll", body);
+        }
+    }
+
+    private async Task HandlePageClicked(int pageNumber)
+    {
+        await GetClasses(pageNumber, 10);
+    }
+    private async Task GetClasses(int pageNumber, int pageSize)
+    {
+        var result =await _http.GetFromJsonAsync<List<ClassModel>>($"https://testmongo.bdjobs.com/test_redwan/api/Class?page={pageNumber}&size={pageSize}");
+        if (result is not null)
+        {
+            classes = result;
+        }
+    }
+    private async Task DeleteClass(Guid? classId)
+    {
+        
+    }
+}

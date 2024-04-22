@@ -1,0 +1,98 @@
+﻿<nav aria-label="...">
+    <ul class="pagination pagination-lg justify-content-center">
+        @if (TotalPage <= 5)
+        {
+            @for (int i = 1; i <= TotalPage; i++)
+            {
+                @if (i == CurrentPage)
+                {
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link">
+                            @i
+                            <span class="visually-hidden">(current)</span>
+                        </span>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item"><a class="page-link" href="#" @onclick="() => OnPageClicked(i)">@i</a></li>
+                }
+
+            }
+        }
+        @if (TotalPage > 5)
+        {
+            @if (CurrentPage <= 3)
+            {
+                for (int i = 1; i <= 5; i++)
+                {
+                    if (i == CurrentPage)
+                    {
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link">
+                                @i
+                                <span class="visually-hidden">(current)</span>
+                            </span>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item"><a class="page-link" href="#" @onclick="() => OnPageClicked(i)">@i</a></li>
+                    }
+                }
+            }
+            else if (CurrentPage > TotalPage - 3)
+            {
+                for (int i = TotalPage - 4; i <= TotalPage; i++)
+                {
+                    if (i == CurrentPage)
+                    {
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link">
+                                @i
+                                <span class="visually-hidden">(current)</span>
+                            </span>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item"><a class="page-link" href="#" @onclick="() => OnPageClicked(i)">@i</a></li>
+                    }
+                }
+            }
+            else
+            {
+                for (int i = CurrentPage - 2; i <= CurrentPage + 2; i++)
+                {
+                    if (i == CurrentPage)
+                    {
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link">
+                                @i
+                                <span class="visually-hidden">(current)</span>
+                            </span>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item"><a class="page-link" href="#" @onclick="() => OnPageClicked(i)">@i</a></li>
+                    }
+                }
+            }
+        }
+    </ul>
+</nav>
+
+@code {
+    [Parameter]
+    public int CurrentPage { get; set; }
+    [Parameter]
+    public int TotalPage { get; set; }
+    [Parameter]
+    public EventCallback<int> PageClicked { get; set; }
+
+    private async Task OnPageClicked(int page)
+    {
+        await PageClicked.InvokeAsync(page);
+    }
+}

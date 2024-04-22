@@ -1,0 +1,136 @@
+﻿@page "/class-create"
+@page "/class-create/{id:Guid}"
+<EditForm Model="classModel" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <div data-mdb-InputText-init class="form-outline mb-3">
+        <InputText type="text" id="form3Example4" class="form-control form-control-lg"
+                   placeholder="Title " @bind-Value="@classModel.Title" />
+    </div>
+    <div data-mdb-InputText-init class="form-outline mb-3">
+        <InputText type="text" id="form3Example4" class="form-control form-control-lg"
+                   placeholder="Description " @bind-Value="@classModel.Description" />
+    </div>
+    <div data-mdb-InputText-init class="form-outline mb-3">
+        <label class="form-label" for="gradeLevelDropdown">Maximum Class Size</label>
+        <InputNumber type="number" id="form3Example4" class="form-control form-control-lg"
+                     placeholder="Maximum Class Size " @bind-Value="@classModel.MaxClassSize" />
+    </div>
+    <!-- GradeLevel Dropdown -->
+    <div class="form-outline mb-3">
+        <label class="form-label" for="gradeLevelDropdown">Grade Level</label>
+        <select class="form-select" id="gradeLevelDropdown" @bind="@classModel.GradeLevelEnum">
+            @foreach (var gradeLevel in Enum.GetValues(typeof(GradeLevel)))
+            {
+                <option value="@gradeLevel">@gradeLevel</option>
+            }
+        </select>
+    </div>
+
+    <!-- Timing Inputs -->
+    <div class="form-outline mb-3">
+        <label class="form-label">Timing</label>
+        <!-- DayOfWeek Checkboxes -->
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="sundayCheckbox" value="0"
+                   checked="@classModel.Timing.DayOfWeek.Contains(0)"
+                   @onchange="@(e => HandleDayOfWeekChange(0))" />
+            <label class="form-check-label" for="sundayCheckbox">Sunday</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="mondayCheckbox" value="1"
+                   checked="@classModel.Timing.DayOfWeek.Contains(1)"
+                   @onchange="@(e => HandleDayOfWeekChange(1))" />
+            <label class="form-check-label" for="mondayCheckbox">Monday</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="tuesdayCheckbox" value="2"
+                   checked="@classModel.Timing.DayOfWeek.Contains(2)"
+                   @onchange="@(e => HandleDayOfWeekChange(2))" />
+            <label class="form-check-label" for="tuesdayCheckbox">Tuesday</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="wednesdayCheckbox" value="3"
+                   checked="@classModel.Timing.DayOfWeek.Contains(3)"
+                   @onchange="@(e => HandleDayOfWeekChange(3))" />
+            <label class="form-check-label" for="wednesdayCheckbox">Wednesday</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="thursdayCheckbox" value="4"
+                   checked="@classModel.Timing.DayOfWeek.Contains(4)"
+                   @onchange="@(e => HandleDayOfWeekChange(4))" />
+            <label class="form-check-label" for="thursdayCheckbox">Thursday</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="fridayCheckbox" value="5"
+                   checked="@classModel.Timing.DayOfWeek.Contains(5)"
+                   @onchange="@(e => HandleDayOfWeekChange(5))" />
+            <label class="form-check-label" for="fridayCheckbox">Friday</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="saturdayCheckbox" value="6"
+                   checked="@classModel.Timing.DayOfWeek.Contains(6)"
+                   @onchange="@(e => HandleDayOfWeekChange(6))" />
+            <label class="form-check-label" for="saturdayCheckbox">Saturday</label>
+        </div>
+
+        <!-- StartTime Input -->
+        <div class="mb-3">
+            <label class="form-label">Start Time</label>
+            <input type="number" class="form-control" placeholder="Hour" @bind="@classModel.Timing.StartTime.Hour" />
+            <input type="number" class="form-control" placeholder="Minute" @bind="@classModel.Timing.StartTime.Minute" />
+            <input type="number" class="form-control" placeholder="Second" @bind="@classModel.Timing.StartTime.Sec" />
+        </div>
+        <!-- EndTime Input -->
+        <div class="mb-3">
+            <label class="form-label">End Time</label>
+            <input type="number" class="form-control" placeholder="Hour" @bind="@classModel.Timing.EndTime.Hour" />
+            <input type="number" class="form-control" placeholder="Minute" @bind="@classModel.Timing.EndTime.Minute" />
+            <input type="number" class="form-control" placeholder="Second" @bind="@classModel.Timing.EndTime.Sec" />
+        </div>
+    </div>
+
+    <div class="text-center text-lg-start mt-4 pt-2">
+        @if (errorMessage != null && errorMessage.Length > 0)
+        {
+            <span class="text-danger">@errorMessage</span>
+        }
+        <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg"
+                style="padding-left: 2.5rem; padding-right: 2.5rem;">
+            Create
+        </button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private ClassModel classModel = new ClassModel();
+    private string errorMessage;
+    [Inject] HttpClient _http{ get; set; }
+    [Inject] NavigationManager NavigationManager{ get; set; }
+
+    // Method to handle changes in DayOfWeek checkboxes
+    private void HandleDayOfWeekChange(int day)
+    {
+        if (classModel.Timing.DayOfWeek.Contains(day))
+        {
+            classModel.Timing.DayOfWeek = classModel.Timing.DayOfWeek.Where(d => d != day).ToArray();
+        }
+        else
+        {
+            classModel.Timing.DayOfWeek = classModel.Timing.DayOfWeek.Append(day).ToArray();
+        }
+    }
+
+    // Method to handle form submission
+    private async Task HandleValidSubmit()
+    {
+        var result = await _http.PostAsJsonAsync("https://testmongo.bdjobs.com/test_redwan/api/Class/Create", classModel);
+        if (result.IsSuccessStatusCode && result is not null)
+        {
+            NavigationManager.NavigateTo("/class-create");
+        }
+    }
+
+}
