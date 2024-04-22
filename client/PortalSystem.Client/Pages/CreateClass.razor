@@ -109,7 +109,21 @@
     private string errorMessage;
     [Inject] HttpClient _http{ get; set; }
     [Inject] NavigationManager NavigationManager{ get; set; }
-
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != Guid.Empty)
+        {
+            await LoadClassDetails(Id);
+        }
+    }
+    private async Task LoadClassDetails(Guid classId)
+    {
+        var result =await _http.GetFromJsonAsync<ClassModel>($"https://testmongo.bdjobs.com/test_redwan/api/Class?id={classId}");
+        if (result != null)
+        {
+            classModel = result;
+        }
+    }
     // Method to handle changes in DayOfWeek checkboxes
     private void HandleDayOfWeekChange(int day)
     {

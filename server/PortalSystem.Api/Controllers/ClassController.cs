@@ -82,7 +82,7 @@ namespace PortalSystem.Api.Controllers
 
         }
         [Authorize(Roles = "admin")]
-        [HttpDelete("Delete")]
+        [HttpPost("Delete")]
         public async Task<ActionResult> DeleteClass(ClassDeleteRequest request)
         {
             if (ModelState.IsValid)

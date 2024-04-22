@@ -19,8 +19,8 @@
                                             <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
                                             <AuthorizeView Roles="admin">
                                                 <Authorized>
-                                                    <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
-                                                    <button type="button" class="btn btn-sm btn-outline-secondary">Delete</button>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="()=>NavigateToEditClass(c.Id)">Edit</button>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="() => DeleteClass(c.Id)">Delete</button>
                                                 </Authorized>
                                             </AuthorizeView>
                                             <AuthorizeView Roles="user">
@@ -91,6 +91,21 @@
     }
     private async Task DeleteClass(Guid? classId)
     {
-        
+        if (classId.HasValue)
+        {
+            var body = new
+            {
+                Id = classId
+            };
+            await _http.PostAsJsonAsync("https://testmongo.bdjobs.com/test_redwan/api/Class/Delete", body);
+        }
     }
+    private void NavigateToEditClass(Guid? classId)
+    {
+        if (classId.HasValue)
+        {
+            NavigationManager.NavigateTo($"/class-create/{classId}");
+        }
+    }
+
 }
